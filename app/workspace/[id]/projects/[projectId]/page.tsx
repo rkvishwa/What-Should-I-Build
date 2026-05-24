@@ -50,6 +50,8 @@ export default async function ProjectPage({
       mvpStatus={project.mvpStatus}
       mvpDemoUrl={project.mvpDemoUrl}
       mvpWebUrl={project.mvpWebUrl}
+      mvpPreviewHtml={project.mvpPreviewHtml}
+      mvpSource={project.mvpSource}
       mvpError={project.mvpError}
     />
   );

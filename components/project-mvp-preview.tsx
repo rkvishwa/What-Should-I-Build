@@ -10,6 +10,8 @@ type MvpState = {
   mvpStatus: string;
   mvpDemoUrl: string | null;
   mvpWebUrl: string | null;
+  mvpPreviewHtml: string | null;
+  mvpSource: string | null;
   mvpError: string | null;
   agentMdStatus: string;
 };
@@ -93,6 +95,8 @@ export function ProjectMvpPreview({
   const [mvpStatus, setMvpStatus] = useState(initialMvp.mvpStatus);
   const [demoUrl, setDemoUrl] = useState(initialMvp.mvpDemoUrl);
   const [webUrl, setWebUrl] = useState(initialMvp.mvpWebUrl);
+  const [previewHtml, setPreviewHtml] = useState(initialMvp.mvpPreviewHtml);
+  const [mvpSource, setMvpSource] = useState(initialMvp.mvpSource);
   const [error, setError] = useState(initialMvp.mvpError);
   const [generating, setGenerating] = useState(false);
   const [hydrated, setHydrated] = useState(false);
@@ -101,8 +105,11 @@ export function ProjectMvpPreview({
   const hasRequestedGenerationRef = useRef(
     initialMvp.mvpStatus === "generating" ||
       initialMvp.mvpStatus === "ready" ||
-      Boolean(initialMvp.mvpDemoUrl),
+      Boolean(initialMvp.mvpDemoUrl) ||
+      Boolean(initialMvp.mvpPreviewHtml),
   );
+
+  const hasPreview = Boolean(demoUrl || previewHtml);
 
   const syncMvpStatus = useCallback(
     (status: string) => {
@@ -117,14 +124,18 @@ export function ProjectMvpPreview({
       mvpStatus?: string;
       mvpDemoUrl?: string | null;
       mvpWebUrl?: string | null;
+      mvpPreviewHtml?: string | null;
+      mvpSource?: string | null;
       mvpError?: string | null;
     }) => {
       const nextStatus = project.mvpStatus ?? "idle";
       const nextDemoUrl = project.mvpDemoUrl ?? null;
       const nextWebUrl = project.mvpWebUrl ?? null;
+      const nextPreviewHtml = project.mvpPreviewHtml ?? null;
+      const nextSource = project.mvpSource ?? null;
       const nextError = project.mvpError ?? null;
 
-      if (nextStatus === "generating" || nextDemoUrl) {
+      if (nextStatus === "generating" || nextDemoUrl || nextPreviewHtml) {
         hasRequestedGenerationRef.current = true;
       }
 
@@ -144,6 +155,8 @@ export function ProjectMvpPreview({
       });
       setDemoUrl(nextDemoUrl);
       setWebUrl(nextWebUrl);
+      setPreviewHtml(nextPreviewHtml);
+      setMvpSource(nextSource);
       setError(nextError);
       if (nextStatus !== "generating") {
         setGenerating(false);
@@ -160,6 +173,8 @@ export function ProjectMvpPreview({
           mvpStatus?: string;
           mvpDemoUrl?: string | null;
           mvpWebUrl?: string | null;
+          mvpPreviewHtml?: string | null;
+          mvpSource?: string | null;
           mvpError?: string | null;
         };
       };
@@ -174,7 +189,7 @@ export function ProjectMvpPreview({
   const generateMvp = useCallback(
     async (force = false) => {
       if (generateRequestRef.current && !force) return;
-      if (!force && mvpStatus === "ready" && demoUrl) return;
+      if (!force && mvpStatus === "ready" && hasPreview) return;
 
       if (agentMdStatus !== "ready") {
         onAgentMdNeeded?.();
@@ -188,6 +203,8 @@ export function ProjectMvpPreview({
       if (force) {
         setDemoUrl(null);
         setWebUrl(null);
+        setPreviewHtml(null);
+        setMvpSource(null);
       }
 
       const request = (async () => {
@@ -199,6 +216,8 @@ export function ProjectMvpPreview({
           const data = (await response.json()) as {
             demoUrl?: string;
             webUrl?: string;
+            previewHtml?: string;
+            mvpSource?: string;
             mvpStatus?: string;
             error?: string;
           };
@@ -219,6 +238,8 @@ export function ProjectMvpPreview({
 
           setDemoUrl(data.demoUrl ?? null);
           setWebUrl(data.webUrl ?? null);
+          setPreviewHtml(data.previewHtml ?? null);
+          setMvpSource(data.mvpSource ?? null);
           syncMvpStatus(data.mvpStatus ?? "ready");
         } catch (err) {
           const message =
@@ -241,7 +262,7 @@ export function ProjectMvpPreview({
     },
     [
       agentMdStatus,
-      demoUrl,
+      hasPreview,
       mvpStatus,
       onAgentMdNeeded,
       pollStatus,
@@ -252,7 +273,7 @@ export function ProjectMvpPreview({
 
   useEffect(() => {
     setIframeLoaded(false);
-  }, [demoUrl, isActive]);
+  }, [demoUrl, previewHtml, isActive]);
 
   useEffect(() => {
     let cancelled = false;
@@ -279,7 +300,7 @@ export function ProjectMvpPreview({
       !isActive ||
       hasRequestedGenerationRef.current ||
       mvpStatus !== "idle" ||
-      demoUrl ||
+      hasPreview ||
       generating ||
       agentMdStatus !== "ready"
     ) {
@@ -296,6 +317,7 @@ export function ProjectMvpPreview({
     isActive,
     mvpStatus,
     demoUrl,
+    hasPreview,
     generating,
     agentMdStatus,
     generateMvp,
@@ -317,23 +339,25 @@ export function ProjectMvpPreview({
   }
 
   const showLoading =
-    generating || (mvpStatus === "generating" && !demoUrl);
+    generating || (mvpStatus === "generating" && !hasPreview);
 
   if (showLoading) {
     return (
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <div className="shrink-0 border-b border-zinc-200 px-3 py-2.5 dark:border-zinc-800 sm:px-4">
           <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            Generating MVP preview with v0...
+            Generating MVP preview...
           </p>
-          <p className="mt-0.5 text-xs text-zinc-500">This may take a few minutes.</p>
+          <p className="mt-0.5 text-xs text-zinc-500">
+            Uses v0 when available, otherwise your configured LLM.
+          </p>
         </div>
         <MvpPreviewSkeleton />
       </div>
     );
   }
 
-  if (mvpStatus === "failed" || (!demoUrl && error)) {
+  if (mvpStatus === "failed" || (!hasPreview && error)) {
     return (
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <TabPanelMessage
@@ -350,7 +374,7 @@ export function ProjectMvpPreview({
     );
   }
 
-  if (!demoUrl) {
+  if (!hasPreview) {
     return (
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <TabPanelMessage
@@ -365,13 +389,19 @@ export function ProjectMvpPreview({
     );
   }
 
+  const previewLabel =
+    mvpSource === "llm"
+      ? "Preview generated with your LLM (v0 limit reached)"
+      : "Live preview powered by v0";
+  const openPreviewHref = demoUrl ?? `/api/projects/${projectId}/mvp-preview`;
+
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <div className="flex shrink-0 flex-col gap-2 border-b border-zinc-200 px-3 py-2.5 dark:border-zinc-800 sm:flex-row sm:items-center sm:justify-between sm:px-4">
-        <p className="text-sm text-zinc-500">Live preview powered by v0</p>
+        <p className="text-sm text-zinc-500">{previewLabel}</p>
         <div className="flex flex-wrap gap-2">
           <a
-            href={demoUrl}
+            href={openPreviewHref}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex h-8 items-center gap-1 rounded-md px-3 text-xs font-medium hover:bg-zinc-100 dark:hover:bg-zinc-900"
@@ -408,13 +438,24 @@ export function ProjectMvpPreview({
           </div>
         )}
         {isActive ? (
-          <iframe
-            key={demoUrl}
-            src={demoUrl}
-            title="MVP preview"
-            onLoad={() => setIframeLoaded(true)}
-            className="block h-full min-h-[480px] w-full border-0 bg-white"
-          />
+          demoUrl ? (
+            <iframe
+              key={demoUrl}
+              src={demoUrl}
+              title="MVP preview"
+              onLoad={() => setIframeLoaded(true)}
+              className="block h-full min-h-[480px] w-full border-0 bg-white"
+            />
+          ) : previewHtml ? (
+            <iframe
+              key={previewHtml.slice(0, 120)}
+              srcDoc={previewHtml}
+              title="MVP preview"
+              onLoad={() => setIframeLoaded(true)}
+              sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+              className="block h-full min-h-[480px] w-full border-0 bg-white"
+            />
+          ) : null
         ) : null}
       </div>
     </div>

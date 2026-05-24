@@ -5,6 +5,7 @@ import {
   startProjectMvpGeneration,
 } from "@/lib/v0/generate-mvp";
 import { isV0Configured } from "@/lib/v0/config";
+import { getLlmConfig } from "@/lib/ai/config";
 import { requireUser } from "@/lib/auth/require-user";
 import { requireProjectOwner } from "@/lib/auth/require-workspace-owner";
 import { getProject, initDb } from "@/lib/db/queries";
@@ -24,9 +25,12 @@ export async function POST(
   const forbidden = await requireProjectOwner(id, auth.user);
   if (forbidden) return forbidden;
 
-  if (!isV0Configured()) {
+  if (!isV0Configured() && !getLlmConfig()) {
     return NextResponse.json(
-      { error: "V0 is not configured. Set V0_API_KEY in your environment." },
+      {
+        error:
+          "No MVP preview provider configured. Set V0_API_KEY or LLM_API_KEY.",
+      },
       { status: 503 },
     );
   }
@@ -55,8 +59,10 @@ export async function POST(
     if (start.action === "ready") {
       return NextResponse.json({
         mvpStatus: "ready",
+        mvpSource: start.result.source,
         demoUrl: start.result.demoUrl,
         webUrl: start.result.webUrl,
+        previewHtml: start.result.previewHtml,
         v0ChatId: start.result.v0ChatId,
       });
     }

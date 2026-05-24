@@ -54,6 +54,8 @@ export function ProjectDetailTabs({
   mvpStatus,
   mvpDemoUrl,
   mvpWebUrl,
+  mvpPreviewHtml,
+  mvpSource,
   mvpError,
 }: {
   workspaceId: string;
@@ -68,6 +70,8 @@ export function ProjectDetailTabs({
   mvpStatus: string;
   mvpDemoUrl: string | null;
   mvpWebUrl: string | null;
+  mvpPreviewHtml: string | null;
+  mvpSource: string | null;
   mvpError: string | null;
 }) {
   const [tab, setTab] = useState<ProjectTab>("overview");
@@ -250,6 +254,8 @@ export function ProjectDetailTabs({
               mvpStatus,
               mvpDemoUrl,
               mvpWebUrl,
+              mvpPreviewHtml,
+              mvpSource,
               mvpError,
               agentMdStatus: currentAgentMdStatus,
             }}

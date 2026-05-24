@@ -244,6 +244,7 @@ export async function updateProjectCanvas(id: string, canvas: CanvasData) {
 
 export type AgentMdStatus = "pending" | "generating" | "ready" | "failed";
 export type MvpStatus = "idle" | "generating" | "ready" | "failed";
+export type MvpSource = "v0" | "llm";
 
 export async function updateProjectAgentMd(
   id: string,
