@@ -1,26 +1,213 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fafafa;
+  --foreground: #18181b;
+  --marketing-accent: #ea580c;
+  --marketing-accent-muted: rgb(234 88 12 / 0.12);
+  --marketing-glow-a: rgb(249 115 22 / 0.22);
+  --marketing-glow-b: rgb(251 146 60 / 0.16);
+  --marketing-glow-c: rgb(254 215 170 / 0.12);
+  --marketing-dark-surface: #060403;
+  --marketing-dark-ambient: rgb(234 88 12 / 0.04);
+  --marketing-dark-glow-a: rgb(154 52 18 / 0.2);
+  --marketing-dark-glow-b: rgb(194 65 12 / 0.14);
+  --marketing-dark-glow-c: rgb(124 45 18 / 0.11);
+  --marketing-grid-size: 64px;
+  --marketing-grid-line: rgb(24 24 27 / 0.055);
+  --marketing-grid-line-dark: rgb(249 115 22 / 0.055);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-marketing-accent: var(--marketing-accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #09090b;
+    --foreground: #fafafa;
+    --marketing-accent: #f97316;
+    --marketing-accent-muted: rgb(249 115 22 / 0.16);
+    --marketing-glow-a: rgb(234 88 12 / 0.2);
+    --marketing-glow-b: rgb(249 115 22 / 0.14);
+    --marketing-glow-c: rgb(194 65 12 / 0.1);
+    --marketing-dark-surface: #040302;
+    --marketing-dark-ambient: rgb(234 88 12 / 0.05);
+    --marketing-dark-glow-a: rgb(124 45 18 / 0.22);
+    --marketing-dark-glow-b: rgb(154 52 18 / 0.16);
+    --marketing-dark-glow-c: rgb(194 65 12 / 0.1);
+    --marketing-grid-line: rgb(255 255 255 / 0.045);
+    --marketing-grid-line-dark: rgb(249 115 22 / 0.065);
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+code {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+@keyframes gradient-drift {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+  25% {
+    transform: translate(12%, -10%) scale(1.08) rotate(2deg);
+  }
+  50% {
+    transform: translate(-8%, 14%) scale(0.92) rotate(-1deg);
+  }
+  75% {
+    transform: translate(6%, 6%) scale(1.04) rotate(1deg);
+  }
+}
+
+@keyframes gradient-drift-reverse {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(-14%, 10%) scale(1.1);
+  }
+  66% {
+    transform: translate(10%, -8%) scale(0.94);
+  }
+}
+
+@keyframes gradient-drift-slow {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(15%, -12%) scale(1.12);
+  }
+}
+
+@keyframes gradient-drift-alt {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  40% {
+    transform: translate(-10%, 12%) scale(1.06);
+  }
+  80% {
+    transform: translate(8%, -6%) scale(0.96);
+  }
+}
+
+@keyframes hero-glow-drift {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(10%, -8%) scale(1.06);
+  }
+  66% {
+    transform: translate(-6%, 10%) scale(0.96);
+  }
+}
+
+@keyframes hero-glow-drift-alt {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-12%, 8%) scale(1.08);
+  }
+}
+
+.animate-gradient-drift {
+  animation: gradient-drift 14s ease-in-out infinite;
+}
+
+.animate-gradient-drift-reverse {
+  animation: gradient-drift-reverse 16s ease-in-out infinite;
+}
+
+.animate-gradient-drift-slow {
+  animation: gradient-drift-slow 20s ease-in-out infinite;
+}
+
+.animate-gradient-drift-alt {
+  animation: gradient-drift-alt 18s ease-in-out infinite;
+}
+
+@keyframes hero-card-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translateY(-8px) rotate(0deg) scale(1);
+  }
+}
+
+.animate-hero-glow-drift {
+  animation: hero-glow-drift 11s ease-in-out infinite;
+}
+
+.animate-hero-glow-drift-alt {
+  animation: hero-glow-drift-alt 13s ease-in-out infinite;
+}
+
+.animate-hero-card-float {
+  animation: hero-card-float 5s ease-in-out infinite;
+}
+
+html.marketing-scroll {
+  scrollbar-width: none;
+}
+
+html.marketing-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+@layer utilities {
+  .text-marketing-accent {
+    color: var(--marketing-accent);
+  }
+
+  .bg-marketing-accent-muted {
+    background-color: var(--marketing-accent-muted);
+  }
+
+  .border-marketing-accent {
+    border-color: color-mix(in srgb, var(--marketing-accent) 28%, transparent);
+  }
+
+  .shadow-marketing-accent {
+    --tw-shadow-color: color-mix(in srgb, var(--marketing-accent) 18%, transparent);
+  }
+
+  .bg-marketing-dark-surface {
+    background-color: var(--marketing-dark-surface);
+  }
+
+  .bg-marketing-faint-grid {
+    background-image:
+      linear-gradient(to right, var(--marketing-grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--marketing-grid-line) 1px, transparent 1px);
+    background-size: var(--marketing-grid-size) var(--marketing-grid-size);
+  }
+
+  .bg-marketing-faint-grid-dark {
+    background-image:
+      linear-gradient(to right, var(--marketing-grid-line-dark) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--marketing-grid-line-dark) 1px, transparent 1px);
+    background-size: var(--marketing-grid-size) var(--marketing-grid-size);
+  }
 }
