@@ -189,7 +189,7 @@ export function ProjectMvpPreview({
   const generateMvp = useCallback(
     async (force = false) => {
       if (generateRequestRef.current && !force) return;
-      if (!force && mvpStatus === "ready" && hasPreview) return;
+      if (!force && mvpStatus === "ready" && (demoUrl || previewHtml)) return;
 
       if (agentMdStatus !== "ready") {
         onAgentMdNeeded?.();
@@ -262,10 +262,11 @@ export function ProjectMvpPreview({
     },
     [
       agentMdStatus,
-      hasPreview,
+      demoUrl,
       mvpStatus,
       onAgentMdNeeded,
       pollStatus,
+      previewHtml,
       projectId,
       syncMvpStatus,
     ],
@@ -300,7 +301,8 @@ export function ProjectMvpPreview({
       !isActive ||
       hasRequestedGenerationRef.current ||
       mvpStatus !== "idle" ||
-      hasPreview ||
+      demoUrl ||
+      previewHtml ||
       generating ||
       agentMdStatus !== "ready"
     ) {
@@ -317,7 +319,7 @@ export function ProjectMvpPreview({
     isActive,
     mvpStatus,
     demoUrl,
-    hasPreview,
+    previewHtml,
     generating,
     agentMdStatus,
     generateMvp,

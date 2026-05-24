@@ -2,6 +2,7 @@
 
 import { LogIn } from "lucide-react";
 import { useAuthUser } from "@/lib/auth/use-auth-user";
+import { createClient } from "@/lib/supabase/client";
 import { Skeleton } from "@/components/design-system/skeleton";
 import { Button } from "@/components/ui";
 import { cn } from "@/lib/utils";

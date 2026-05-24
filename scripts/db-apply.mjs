@@ -11,30 +11,38 @@ if (!databaseUrl) {
   process.exit(1);
 }
 
-const repairMigration = resolve(
-  process.cwd(),
+const repairMigrations = [
   "supabase/migrations/20250525180100_ensure_agent_md_and_mvp.sql",
-);
+  "supabase/migrations/20250525180200_mvp_llm_fallback.sql",
+];
 
 const sql = postgres(databaseUrl, { prepare: false, max: 1 });
 
 try {
-  console.log("Applying idempotent migration via direct SQL...");
-  const content = readFileSync(repairMigration, "utf8");
-  await sql.unsafe(content);
+  console.log("Applying idempotent migrations via direct SQL...");
+  for (const relativePath of repairMigrations) {
+    const migrationPath = resolve(process.cwd(), relativePath);
+    const content = readFileSync(migrationPath, "utf8");
+    console.log(`Applying ${relativePath}...`);
+    await sql.unsafe(content);
+  }
 
-  const version = "20250525180100";
-  const existing = await sql`
-    SELECT version FROM supabase_migrations.schema_migrations
-    WHERE version = ${version}
-  `;
+  for (const relativePath of repairMigrations) {
+    const version = relativePath.match(/(\d{14})/)?.[1];
+    if (!version) continue;
 
-  if (existing.length === 0) {
-    await sql`
-      INSERT INTO supabase_migrations.schema_migrations (version)
-      VALUES (${version})
+    const existing = await sql`
+      SELECT version FROM supabase_migrations.schema_migrations
+      WHERE version = ${version}
     `;
-    console.log(`Recorded migration ${version} in schema_migrations.`);
+
+    if (existing.length === 0) {
+      await sql`
+        INSERT INTO supabase_migrations.schema_migrations (version)
+        VALUES (${version})
+      `;
+      console.log(`Recorded migration ${version} in schema_migrations.`);
+    }
   }
 
   console.log("Migration applied successfully.");

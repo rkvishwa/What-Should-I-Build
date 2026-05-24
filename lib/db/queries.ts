@@ -19,6 +19,34 @@ import {
 
 let client: ReturnType<typeof postgres> | null = null;
 let db: PostgresJsDatabase<typeof schema> | null = null;
+let schemaEnsured = false;
+
+async function ensureProjectMvpColumns() {
+  if (schemaEnsured || !client) return;
+
+  try {
+    const existing = await client<{ column_name: string }[]>`
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name = 'projects'
+        AND column_name IN ('mvp_source', 'mvp_preview_html')
+    `;
+
+    if (existing.length >= 2) {
+      schemaEnsured = true;
+      return;
+    }
+
+    await client.unsafe(`
+      ALTER TABLE projects ADD COLUMN IF NOT EXISTS mvp_source TEXT;
+      ALTER TABLE projects ADD COLUMN IF NOT EXISTS mvp_preview_html TEXT;
+    `);
+    schemaEnsured = true;
+  } catch (error) {
+    console.error("[initDb] Failed to ensure MVP columns:", error);
+  }
+}
 
 function getDb() {
   if (!db) {
@@ -33,7 +61,9 @@ function getDb() {
 }
 
 export async function initDb() {
-  return getDb();
+  const database = getDb();
+  await ensureProjectMvpColumns();
+  return database;
 }
 
 // Legacy generations
