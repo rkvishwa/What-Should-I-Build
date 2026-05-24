@@ -1,6 +1,14 @@
 # What Should I Build?
 
-An AI-powered project idea generator for developers. Describe your skills, goals, or constraints — get ranked project ideas with architecture diagrams, agent instructions, MVP previews, and per-project chat in an interactive workspace.
+I was looking for something to build for [tryitout.io](https://tryitout.io) — a place to ship side projects and get them in front of people. I scrolled through the usual lists: another todo app, another URL shortener, another habit tracker. Fine projects, but all of them felt like things that already exist a hundred times over. Nothing clicked.
+
+Then it hit me: *what if the project I build is the thing that helps you figure out what to build?*
+
+Not another “here are 10 startup ideas” blog post. Not a single ChatGPT prompt that spits out a paragraph and leaves you staring at a blank repo. I wanted a tool that takes you from “I have skills and time, but no direction” to something you can actually start — **ideas ranked for you**, plus the **architecture**, **agent instructions**, **MVP preview**, and **project chat** to go with them.
+
+That’s **What Should I Build?** — an AI workspace for developers who are ready to ship, but stuck on *what*.
+
+Describe your skills, goals, or constraints. Get back ranked project ideas with live generation logs, editable architecture canvas, copy-ready AGENTS.md, v0 MVP previews, and per-project chat — all in one place.
 
 **Live docs:** after starting the app, visit [/docs](http://localhost:3000/docs) for a full user guide.
 
